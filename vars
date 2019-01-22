@@ -3,6 +3,4 @@ database=wordpress
 password=password
 hostname=172.17.0.1
 port=3307
-
-filename=backups/${database}`date +%Y%m%d_%H%M%S`.sql
-last_file=ls -t backups/| grep sql | head -1
+port_test=3308

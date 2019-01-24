@@ -3,14 +3,13 @@
 source vars
 
 if [ $(docker ps -a | grep -c mysql-test) != 1 ]; then
-echo "Docker instaling"
+echo "Docker setup"
 docker run -d -p 3308:3306 -e MYSQL_ROOT_PASSWORD=toor  -e MYSQL_DATABASE=${database} -e MYSQL_USER=${username} -e MYSQL_PASSWORD=${password} --name mysql-test skepa23/mysql
 else
-echo "Docker already installed"
+echo "Docker already setup"
 fi
 
 #Docker start
-sleep 10
 echo "Docker start"
 docker start mysql-test
 
@@ -20,7 +19,7 @@ while true
    if [ $i == 1 ];then
    break
    fi
-   i=$(mysql -h ${hostname} -P ${port_test} -u ${username} -p${password} --database=${database} -e 'show tables'|grep -c Tables_in_wordpress;)
+   i=$(mysql -h ${hostname} -P ${port_test} -u ${username} -p${password} --database=${database} -e 'show databases'|grep -c ${database};)
 done
 echo "  " >> log.txt
 echo "`date +%Y%m%d_%H%M%S` $filename" >> log.txt

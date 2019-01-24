@@ -1,0 +1,91 @@
+#!/bin/bash
+
+source vars
+
+#Docker start
+
+echo "docker start"
+docker start mysql-test
+
+
+sleep 5
+
+
+#Backup
+
+filename=${database}`date +%Y%m%d_%H%M%S`.sql
+mysqldump -h ${hostname} -P ${port} -u ${username} --databases ${database} --password=${password} > $filename;
+echo 'Backup complite';
+
+#Restore
+
+mysql -h ${hostname} -P ${port_test} -u ${username} -p${password} --database=${database} < $filename;
+echo 'Restore complite';
+
+#Test DB
+
+tables_source=$(mysql -h ${hostname} -P ${port} -u ${username} -p${password} --database=${database} -e 'show tables')
+echo $tables_source
+wp_tables_source=($tables_source)
+sleep 1
+
+echo ${wp_tables_source[@]}
+
+sleep 1
+
+tables_backup=$(mysql -h ${hostname} -P ${port_test} -u ${username} -p${password} --database=${database} -e 'show tables')
+echo $tables_backup
+wp_tables_backup=($tables_backup)
+sleep 1
+
+echo ${wp_tables_backup[@]}
+
+echo ${wp_tables_backup[1]}
+
+index=1for item in ${wp_tables_backup[*]}
+ do
+   if [ $item == $tableid]; then 
+      printf "   %s\n" $item
+   else
+      printf "ZOPA"
+   fi
+for item in ${wp_tables_backup[*]}
+ do
+   if [ $item == $tableid]; then 
+      printf "   %s\n" $item
+   else
+      printf "ZOPA"
+   fi
+done
+
+#Test tables
+#item=1
+#echo "Test tables" 
+#for item in ${wp_tables[*]}
+# do
+#   tableid=$(mysql -h ${hostname} -P ${port_test} -u ${username} -p${password} --database=${database} -e 'show tables' | grep $item );
+#   if [ $item == $tableid]; then 
+#      printf "   %s\n" $item
+#   else
+#      printf "ZOPA"
+#   fi
+#done
+
+#Test colum users
+
+echo "Test colums" 
+colums=$(echo "SELECT * FROM wp_users" | mysql -h ${hostname} -P ${port_test} --verbose -u ${username} -p${password} --database=${database} |grep -c myuser)
+if [ $colums == 1 ]; then 
+     echo "Archiving"
+     echo $colums 
+     tar -cvf backups/$filename.tar.gz $filename
+     rm $filename
+     echo "Complete"
+     echo "`date +%Y%m%d_%H%M%S` done $filename" >> log.txt 
+   else
+      printf "ZOPA %s\n"
+      rm $filename
+      echo "`date +%Y%m%d_%H%M%S` ZOPA" >> log.txt 
+   fi
+
+docker stop mysql-test

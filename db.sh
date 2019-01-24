@@ -103,5 +103,5 @@ echo $filename.tar.gz >> log.txt
 echo "====================================" >> log.txt
 echo "Stop Docker"
 docker stop mysql-test
-
+docker rm mysql-test
 exit 0
